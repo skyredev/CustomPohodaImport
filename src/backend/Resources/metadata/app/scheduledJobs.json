@@ -1,0 +1,11 @@
+{
+	"PohodaSyncAccounts": {
+		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncAccounts"
+	},
+	"PohodaSyncIssuedInvoices": {
+		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncIssuedInvoices"
+	},
+	"PohodaSyncReceivedInvoices": {
+		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncReceivedInvoices"
+	}
+}

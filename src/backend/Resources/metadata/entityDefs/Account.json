@@ -1,0 +1,9 @@
+{
+    "fields": {
+        "processed": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        }
+    }
+}
