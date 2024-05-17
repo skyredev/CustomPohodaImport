@@ -1,0 +1,20 @@
+/*
+    Path: src/client/css/main.css
+
+    Description:
+
+    This is the main CSS file, it's the entry point for ESBuild.
+    All other CSS files should be imported here via @import, if you want to use them.
+    ESBuild will bundle all imported CSS files including this one into a single file.
+
+    This file has to be appended to metadata/app/client.json, example below:
+
+    {
+        "cssList": [
+            "__APPEND__",
+            "client/modules/<module-name>/css/main.css"
+        ]
+    }
+
+    (If not required, you can remove this file and the metadata/app/client.json entry.)
+*/

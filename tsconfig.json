@@ -1,0 +1,31 @@
+{
+	"extends": "@tsconfig/strictest/tsconfig.json",
+	"include": [
+		"src/client/src/**/*.ts",
+		"reset.d.ts"
+	],
+	"compilerOptions": {
+	    "esModuleInterop": true,
+    	"skipLibCheck": true,
+    	"target": "ESNext",
+    	"verbatimModuleSyntax": true,
+    	"allowJs": true,
+    	"resolveJsonModule": true,
+    
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+    
+		"moduleResolution": "Bundler",
+		"module": "ESNext",
+		"noEmit": true,
+
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext"
+		],
+
+		"noPropertyAccessFromIndexSignature": false,
+		"noImplicitAny": false
+	}
+}

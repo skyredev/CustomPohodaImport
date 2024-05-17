@@ -1,0 +1,4 @@
+[install.scopes]
+apertia = { token = "$APERTIA_PERSONAL_TOKEN", url = "https://gitlab.apertia.cz/api/v4/groups/7/-/packages/npm/" }
+
+
