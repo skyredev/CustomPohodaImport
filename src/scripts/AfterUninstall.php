@@ -1,7 +1,5 @@
 <?php
 
-namespace src\scripts;
-
 use Espo\Core\{
     Container,
     DataManager
