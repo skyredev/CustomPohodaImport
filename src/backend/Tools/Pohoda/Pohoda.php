@@ -11,43 +11,15 @@ use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\ORM\Entity;
 
 class Pohoda {
-	private string $url;
-	private string $username;
-	private string $password;
-	private string $receivedInvoiceEntity;
-	private string $receivedInvoiceSymVar;
-	private string $receivedInvoiceSymConst;
-	private string $receivedInvoiceDate;
-
+	private string $username = 'APERTIA';
+	private string $password = '12345';
+	private string $url = 'http://95.168.223.178:4444/xml';
 	const DEBUG_PREFIX = '[Espo\Modules\PohodaImport\Tools\Pohoda]';
 
 	public function __construct(
 		private EntityManager $entityManager,
 		private Log $log,
-	) {
-		$integrationName = 'Pohoda';
-
-		/** @var IntegrationEntity|null $entity */
-		$entity = $this->entityManager
-			->getEntityById(IntegrationEntity::ENTITY_TYPE, $integrationName);
-
-		if ($entity === null) {
-			throw new NotFound($integrationName . ' integration not found.');
-		}
-
-		if (!$entity->get('enabled')) {
-			throw new Error($integrationName . ' integration is not enabled.');
-		}
-
-		$this->url = $entity->get('MserverURL') ?? throw new NotFound('"MserverURL" not found in ' . $integrationName . ' integration.');
-		$this->username = $entity->get('MserverUsername') ?? throw new NotFound('"MserverUsername" not found in ' . $integrationName . ' integration.');
-		$this->password = $entity->get('MserverPassword') ?? throw new NotFound('"MserverPassword" not found in ' . $integrationName . ' integration.');
-		$this->receivedInvoiceEntity = $entity->get('receivedInvoiceEntity') ?? throw new NotFound('"receivedInvoiceEntity" not found in ' . $integrationName . ' integration.');
-		$this->receivedInvoiceSymVar = $entity->get('receivedInvoiceSymVar') ?? throw new NotFound('"receivedInvoiceSymVar" not found in ' . $integrationName . ' integration.');
-		$this->receivedInvoiceSymConst = $entity->get('receivedInvoiceSymConst') ?? throw new NotFound('"receivedInvoiceSymConst" not found in ' . $integrationName . ' integration.');
-		$this->receivedInvoiceDate = $entity->get('receivedInvoiceDate') ?? throw new NotFound('"receivedInvoiceDate" not found in ' . $integrationName . ' integration.');
-	}
-
+	) {}
 	private function debug($message, array $context = []): void
 	{
 		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
@@ -62,7 +34,6 @@ class Pohoda {
 				Cond::Equal(Cond::column('processed'), false))
 			->find()->getValueMapList();
 	}
-
 	public function getEntityToSync(string $id, string $entityType): ?Entity
 	{
 		$entity = $this->entityManager
@@ -76,7 +47,6 @@ class Pohoda {
 
 		return $entity;
 	}
-
 	public function sendXmlToPohoda(string $xmlData): void
 	{
 		$encodedCredentials = base64_encode("{$this->username}:{$this->password}");
@@ -99,7 +69,7 @@ class Pohoda {
 		$response = file_get_contents($this->url, false, $context);
 
 		if ($response === false) {
-			throw new \Exception("Failed to send XML to Pohoda. Error: " . error_get_last()['message']);
+			throw new \Exception("Failed to send XML to Pohoda. Error: " . error_get_last()['message'] );
 		}
 
 		$statusCode = $this->getStatusCodeFromResponse($http_response_header);
@@ -117,23 +87,6 @@ class Pohoda {
 		return (int) ($matches[1] ?? 0);
 	}
 
-	public function getReceivedInvoiceEntity(): string
-	{
-		return $this->receivedInvoiceEntity;
-	}
 
-	public function getReceivedInvoiceSymVar(): string
-	{
-		return $this->receivedInvoiceSymVar;
-	}
 
-	public function getReceivedInvoiceSymConst(): string
-	{
-		return $this->receivedInvoiceSymConst;
-	}
-
-	public function getReceivedInvoiceDate(): string
-	{
-		return $this->receivedInvoiceDate;
-	}
 }
