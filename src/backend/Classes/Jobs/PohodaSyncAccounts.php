@@ -26,39 +26,10 @@ class PohodaSyncAccounts implements JobDataLess
 
 	public function run(): void
 	{
-		$accountIdsToSync = $this->pohoda->getIdsToSync('Account');
-
-		$this->debug('Accounts to sync count: ' . count($accountIdsToSync));
-
-		foreach ($accountIdsToSync as $accountId) {
-			try {
-				$account = $this->pohoda->getEntityToSync($accountId?->id, 'Account');
-
-				if (!$account) {
-
-					continue;
-				}
-				if($account->get('processed')){
-					$this->debug('Account already processed');
-					continue;
-				}
-
-				$this->debug('Trying to sync account "' . $account->get('name') . '"');
-
-				$xmlData = $this->generateXmlForAccount($account);
-
-				$this->pohoda->sendXmlToPohoda($xmlData);
-
-				$account->set('processed', true);
-				$this->entityManager->saveEntity($account);
-
-			} catch (\Exception $exception) {
-				$this->debug('Failed to sync account error msg: ' . $exception->getMessage());
-			}
-		}
+		$this->pohoda->processEntity('Account', [$this, 'generateXml']);
 	}
 
-	private function generateXmlForAccount(Entity $account): string
+	public function generateXml(Entity $account): string
 	{
 		$company = htmlspecialchars($account->get('name'));
 		$city = htmlspecialchars($account->get('billingAddressCity') ? $account->get('billingAddressCity') : 'Neznáme');
@@ -73,7 +44,6 @@ class PohodaSyncAccounts implements JobDataLess
 		if(!$company){
 			throw new \Exception('Company name is empty');
 		}
-
 
 
 		$xmlData = '<?xml version="1.0" encoding="Windows-1250"?>

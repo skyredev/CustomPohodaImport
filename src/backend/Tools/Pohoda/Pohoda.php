@@ -25,6 +25,39 @@ class Pohoda {
 		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
 	}
 
+	public function processEntity(string $entityType, $generateXmlForEntity): void
+	{
+		$entityIds = $this->getIdsToSync($entityType);
+
+		$this->debug(' '.$entityType.' to sync count: ' . count($entityIds));
+
+		foreach ($entityIds as $entityId) {
+			try {
+				$entity = $this->getEntityToSync($entityId?->id, $entityType);
+
+				if (!$entity) {
+					continue;
+				}
+				if ($entity->get('processed')) {
+					$this->debug($entityType.' already processed');
+					continue;
+				}
+
+				$this->debug('Trying to sync received invoice "' . $entity->get('name') . '"');
+
+				$xmlData = $generateXmlForEntity($entity);
+
+				$this->sendXmlToPohoda($xmlData);
+
+				$entity->set('processed', true);
+				$this->entityManager->saveEntity($entity);
+
+			} catch (\Exception $exception) {
+				$this->debug('Failed to sync received invoice error msg: ' . $exception->getMessage());
+			}
+		}
+	}
+
 	public function getIdsToSync(string $entityType): array
 	{
 		return $this->entityManager
@@ -46,6 +79,57 @@ class Pohoda {
 		}
 
 		return $entity;
+	}
+	public function getInvoiceItems(Entity $invoice, string $entityType, string $relationName): string
+	{
+		$items = $this->entityManager
+			->getRDBRepository($entityType)
+			->getRelation($invoice, $relationName)
+			->find();
+
+		$invoiceItems = '';
+
+		foreach ($items as $item) {
+			$itemName = htmlspecialchars(substr($item->get('name'), 0, 90));
+			$unitPrice = htmlspecialchars($item->get('unitPrice'));
+			$unit = htmlspecialchars($item->get('unit'));
+			$quantity = htmlspecialchars($item->get('quantity'));
+			$discount = htmlspecialchars($item->get('discount'));
+			$taxRate = htmlspecialchars($item->get('taxRate'));
+			$withTax = htmlspecialchars($item->get('withTax'));
+			$unitPriceCurrency = htmlspecialchars($item->get('unitPriceCurrency'));
+
+			$withTax = $withTax ? 'true' : 'false';
+
+			if($taxRate == 21) {
+				$rateVAT = 'high';
+			}
+			elseif($taxRate == 12){
+				$rateVAT = 'low';
+			}
+			else{
+				$rateVAT = 'none';
+			}
+
+
+			$invoiceItems .= '
+            <inv:invoiceItem>
+					<inv:text>' . $itemName . '</inv:text>
+					<inv:quantity>' . $quantity . '</inv:quantity>
+					<inv:payVAT>' . $withTax .'</inv:payVAT>
+					<inv:rateVAT>' . $rateVAT . '</inv:rateVAT>
+					<inv:unit>' . $unit . '</inv:unit>
+					<inv:discountPercentage>' . $discount . '</inv:discountPercentage>
+					<inv:homeCurrency>
+						<typ:unitPrice>' . $unitPrice . '</typ:unitPrice>
+					</inv:homeCurrency>
+					<inv:note>' . $unitPriceCurrency . '</inv:note>
+				</inv:invoiceItem>'
+			;
+
+		}
+
+		return $invoiceItems;
 	}
 	public function sendXmlToPohoda(string $xmlData): void
 	{

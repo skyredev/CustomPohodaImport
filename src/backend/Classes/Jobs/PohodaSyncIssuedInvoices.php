@@ -13,8 +13,6 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 {
 	const DEBUG_PREFIX = '[POHODA SYNC ISSUED INVOICES] ';
 
-	private static array $processedNumbers = [];
-
 	public function __construct(
 		private EntityManager $entityManager,
 		private Log $log,
@@ -28,58 +26,20 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 
 	public function run(): void
 	{
-		$issuedInvoiceIds = $this->pohoda->getIdsToSync('Invoice');
-
-		$this->debug('Invoices to sync count: ' . count($issuedInvoiceIds));
-
-		foreach ($issuedInvoiceIds as $invoiceId) {
-			try {
-				$invoice = $this->pohoda->getEntityToSync($invoiceId?->id, 'Invoice');
-
-				if (!$invoice) {
-					continue;
-				}
-
-				if ($invoice->get('processed')) {
-					$this->debug('Invoice already processed');
-					continue;
-				}
-
-				$number = htmlspecialchars($invoice->get('number'));
-
-				if (in_array($number, self::$processedNumbers)) {
-					$this->debug("Invoice with number '{$number}' is DUPLICATED NUMBER. Skipping.");
-					continue;
-				}
-
-				$this->debug('Trying to sync invoice "' . $invoice->get('name') . '"');
-
-				$xmlData = $this->generateXmlForAccount($invoice);
-
-				$this->pohoda->sendXmlToPohoda($xmlData);
-
-				self::$processedNumbers[] = $number;
-
-				$invoice->set('processed', true);
-				$this->entityManager->saveEntity($invoice);
-
-			} catch (\Exception $exception) {
-				$this->debug('Failed to sync invoice error msg: ' . $exception->getMessage());
-			}
-		}
+		$this->pohoda->processEntity('Invoice', [$this, 'generateXml']);
 	}
 
 
-	private function generateXmlForAccount(Entity $invoice): string
+    public function generateXml(Entity $invoice): string
 	{
 		$number = htmlspecialchars($invoice->get('number'));
 		$name = htmlspecialchars($invoice->get('name'));
 		$symconst = htmlspecialchars($invoice->get('constantSymbol'));
 		$symvar = htmlspecialchars($invoice->get('variableSymbol'));
 		$dateInvoiced = htmlspecialchars($invoice->get('dateInvoiced'));
-		$dueDate = htmlspecialchars($invoice->get('dueDate'));
+        $dueDate = htmlspecialchars($invoice->get('dueDate'));
 		$orderNumber = htmlspecialchars($invoice->get('orderNumber'));
-		$sisCode = htmlspecialchars($invoice->get('sisCode'));
+		$sicCode = htmlspecialchars($invoice->get('sicCode'));
 		$vatId = htmlspecialchars($invoice->get('vatId'));
 		$billingAddressCity = htmlspecialchars($invoice->get('billingAddressCity'));
 		$billingAddressStreet = htmlspecialchars($invoice->get('billingAddressStreet'));
@@ -88,21 +48,25 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 		$shippingAddressStreet = htmlspecialchars($invoice->get('shippingAddressStreet'));
 		$shippingAddressPostalCode = htmlspecialchars($invoice->get('shippingAddressPostalCode'));
 		$company = htmlspecialchars($invoice->get('accountName'));
-		$grandTotalAmount = htmlspecialchars($invoice->get('grandTotalAmount'));
 
-		$accountId = $invoice->get('accountId');
+        $invoiceItems = $this->pohoda->getInvoiceItems($invoice, 'InvoiceItem', 'items');
 
-		if(isset($accountId)){
-			$account = $this->pohoda->getEntityToSync($invoice->get('accountId'), 'Account');
-		}
-		else{
-			$account = null;
-		}
+        if($dueDate){
+            $dueDate = '<inv:dateDue>' . $dueDate . '</inv:dateDue>';
+        }
+        else{
+            $dueDate = '';
+        }
+
+        $account = $this->entityManager
+            ->getRDBRepository('Invoice')
+            ->getRelation($invoice, 'account')
+            ->findOne();
 
 		if(isset($account)){
 
-			if(!$sisCode){
-				$sisCode = htmlspecialchars($account->get('sicCode'));
+			if(!$sicCode){
+				$sicCode = htmlspecialchars($account->get('sicCode'));
 			}
 			if(!$vatId){
 				$vatId = htmlspecialchars($account->get('vatId'));
@@ -111,29 +75,7 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 
 			$phone = htmlspecialchars($account->get('phoneNumber'));
 
-			$this->debug('AccountName: ' . $account->get('name'));
-			$this->debug('Email: ' . $email);
-			$this->debug('Phone: ' . $phone);
 		}
-		#debug all invoice data on a new line each
-		$this->debug('Number: ' . $number);
-		$this->debug('Name: ' . $name);
-		$this->debug('Symconst: ' . $symconst);
-		$this->debug('Symvar: ' . $symvar);
-		$this->debug('DateInvoiced: ' . $dateInvoiced);
-		$this->debug('DueDate: ' . $dueDate);
-		$this->debug('OrderNumber: ' . $orderNumber);
-		$this->debug('SisCode: ' . $sisCode);
-		$this->debug('VatId: ' . $vatId);
-		$this->debug('BillingAddressCity: ' . $billingAddressCity);
-		$this->debug('BillingAddressStreet: ' . $billingAddressStreet);
-		$this->debug('BillingAddressPostalCode: ' . $billingAddressPostalCode);
-		$this->debug('ShippingAddressCity: ' . $shippingAddressCity);
-		$this->debug('ShippingAddressStreet: ' . $shippingAddressStreet);
-		$this->debug('ShippingAddressPostalCode: ' . $shippingAddressPostalCode);
-		$this->debug('Company: ' . $company);
-		$this->debug('GrandTotalAmount: ' . $grandTotalAmount);
-
 
 		$xmlData = '<?xml version="1.0" encoding="Windows-1250"?>
 <dat:dataPack version="2.0" id="Usr01" ico="11223344" key="521d4e05-f032-465e-8150-f423d1b98197" programVersion="13700.208 (30.5.2024)" application="Transformace" note="Uživatelský export" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">
@@ -146,7 +88,7 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 				</inv:number>
 				<inv:symVar>' . $symvar . '</inv:symVar>
 				<inv:date>' . $dateInvoiced . '</inv:date>
-				<inv:dateDue>' . $dueDate . '</inv:dateDue>
+				' . $dueDate . '
 				<inv:text>' . $name . '</inv:text>
 				<inv:partnerIdentity>
 					<typ:address>
@@ -154,7 +96,7 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 						<typ:street>' . $billingAddressStreet . '</typ:street>
 						<typ:city>' . $billingAddressCity . '</typ:city>
 						<typ:zip>' . $billingAddressPostalCode . '</typ:zip>
-						<typ:ico>' . $sisCode . '</typ:ico>
+						<typ:ico>' . $sicCode . '</typ:ico>
 						<typ:dic>' . $vatId . '</typ:dic>
 						<typ:phone>' . $phone . '</typ:phone>
 						<typ:email>' . $email . '</typ:email>
@@ -169,11 +111,9 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 				<inv:numberOrder>' . $orderNumber . '</inv:numberOrder>
 				<inv:symConst>' . $symconst . '</inv:symConst>
 			</inv:invoiceHeader>
-			<inv:invoiceSummary xmlns:rsp="http://www.stormware.cz/schema/version_2/response.xsd" xmlns:rdc="http://www.stormware.cz/schema/version_2/documentresponse.xsd" xmlns:typ="http://www.stormware.cz/schema/version_2/type.xsd" xmlns:lst="http://www.stormware.cz/schema/version_2/list.xsd" xmlns:lStk="http://www.stormware.cz/schema/version_2/list_stock.xsd" xmlns:lAdb="http://www.stormware.cz/schema/version_2/list_addBook.xsd" xmlns:lCen="http://www.stormware.cz/schema/version_2/list_centre.xsd" xmlns:lAcv="http://www.stormware.cz/schema/version_2/list_activity.xsd" xmlns:acu="http://www.stormware.cz/schema/version_2/accountingunit.xsd" xmlns:vch="http://www.stormware.cz/schema/version_2/voucher.xsd" xmlns:int="http://www.stormware.cz/schema/version_2/intDoc.xsd" xmlns:stk="http://www.stormware.cz/schema/version_2/stock.xsd" xmlns:ord="http://www.stormware.cz/schema/version_2/order.xsd" xmlns:ofr="http://www.stormware.cz/schema/version_2/offer.xsd" xmlns:enq="http://www.stormware.cz/schema/version_2/enquiry.xsd" xmlns:vyd="http://www.stormware.cz/schema/version_2/vydejka.xsd" xmlns:pri="http://www.stormware.cz/schema/version_2/prijemka.xsd" xmlns:bal="http://www.stormware.cz/schema/version_2/balance.xsd" xmlns:pre="http://www.stormware.cz/schema/version_2/prevodka.xsd" xmlns:vyr="http://www.stormware.cz/schema/version_2/vyroba.xsd" xmlns:pro="http://www.stormware.cz/schema/version_2/prodejka.xsd" xmlns:con="http://www.stormware.cz/schema/version_2/contract.xsd" xmlns:adb="http://www.stormware.cz/schema/version_2/addressbook.xsd" xmlns:prm="http://www.stormware.cz/schema/version_2/parameter.xsd" xmlns:lCon="http://www.stormware.cz/schema/version_2/list_contract.xsd" xmlns:ctg="http://www.stormware.cz/schema/version_2/category.xsd" xmlns:ipm="http://www.stormware.cz/schema/version_2/intParam.xsd" xmlns:str="http://www.stormware.cz/schema/version_2/storage.xsd" xmlns:idp="http://www.stormware.cz/schema/version_2/individualPrice.xsd" xmlns:sup="http://www.stormware.cz/schema/version_2/supplier.xsd" xmlns:prn="http://www.stormware.cz/schema/version_2/print.xsd" xmlns:lck="http://www.stormware.cz/schema/version_2/lock.xsd" xmlns:isd="http://www.stormware.cz/schema/version_2/isdoc.xsd" xmlns:sEET="http://www.stormware.cz/schema/version_2/sendEET.xsd" xmlns:act="http://www.stormware.cz/schema/version_2/accountancy.xsd" xmlns:bnk="http://www.stormware.cz/schema/version_2/bank.xsd" xmlns:sto="http://www.stormware.cz/schema/version_2/store.xsd" xmlns:grs="http://www.stormware.cz/schema/version_2/groupStocks.xsd" xmlns:acp="http://www.stormware.cz/schema/version_2/actionPrice.xsd" xmlns:csh="http://www.stormware.cz/schema/version_2/cashRegister.xsd" xmlns:bka="http://www.stormware.cz/schema/version_2/bankAccount.xsd" xmlns:ilt="http://www.stormware.cz/schema/version_2/inventoryLists.xsd" xmlns:nms="http://www.stormware.cz/schema/version_2/numericalSeries.xsd" xmlns:pay="http://www.stormware.cz/schema/version_2/payment.xsd" xmlns:mKasa="http://www.stormware.cz/schema/version_2/mKasa.xsd" xmlns:gdp="http://www.stormware.cz/schema/version_2/GDPR.xsd" xmlns:est="http://www.stormware.cz/schema/version_2/establishment.xsd" xmlns:cen="http://www.stormware.cz/schema/version_2/centre.xsd" xmlns:acv="http://www.stormware.cz/schema/version_2/activity.xsd" xmlns:afp="http://www.stormware.cz/schema/version_2/accountingFormOfPayment.xsd" xmlns:vat="http://www.stormware.cz/schema/version_2/classificationVAT.xsd" xmlns:rgn="http://www.stormware.cz/schema/version_2/registrationNumber.xsd" xmlns:ftr="http://www.stormware.cz/schema/version_2/filter.xsd" xmlns:asv="http://www.stormware.cz/schema/version_2/accountingSalesVouchers.xsd" xmlns:arch="http://www.stormware.cz/schema/version_2/archive.xsd" xmlns:req="http://www.stormware.cz/schema/version_2/productRequirement.xsd" xmlns:mov="http://www.stormware.cz/schema/version_2/movement.xsd" xmlns:rec="http://www.stormware.cz/schema/version_2/recyclingContrib.xsd" xmlns:srv="http://www.stormware.cz/schema/version_2/service.xsd" xmlns:rul="http://www.stormware.cz/schema/version_2/rulesPairing.xsd" xmlns:lwl="http://www.stormware.cz/schema/version_2/liquidationWithoutLink.xsd" xmlns:dis="http://www.stormware.cz/schema/version_2/discount.xsd" xmlns:lqd="http://www.stormware.cz/schema/version_2/automaticLiquidation.xsd">
-				<inv:homeCurrency>
-					<typ:priceHighSum>' . $grandTotalAmount . '</typ:priceHighSum>
-				</inv:homeCurrency>
-			</inv:invoiceSummary>
+			<inv:invoiceDetail xmlns:rsp="http://www.stormware.cz/schema/version_2/response.xsd" xmlns:rdc="http://www.stormware.cz/schema/version_2/documentresponse.xsd" xmlns:typ="http://www.stormware.cz/schema/version_2/type.xsd" xmlns:lst="http://www.stormware.cz/schema/version_2/list.xsd" xmlns:lStk="http://www.stormware.cz/schema/version_2/list_stock.xsd" xmlns:lAdb="http://www.stormware.cz/schema/version_2/list_addBook.xsd" xmlns:lCen="http://www.stormware.cz/schema/version_2/list_centre.xsd" xmlns:lAcv="http://www.stormware.cz/schema/version_2/list_activity.xsd" xmlns:acu="http://www.stormware.cz/schema/version_2/accountingunit.xsd" xmlns:vch="http://www.stormware.cz/schema/version_2/voucher.xsd" xmlns:int="http://www.stormware.cz/schema/version_2/intDoc.xsd" xmlns:stk="http://www.stormware.cz/schema/version_2/stock.xsd" xmlns:ord="http://www.stormware.cz/schema/version_2/order.xsd" xmlns:ofr="http://www.stormware.cz/schema/version_2/offer.xsd" xmlns:enq="http://www.stormware.cz/schema/version_2/enquiry.xsd" xmlns:vyd="http://www.stormware.cz/schema/version_2/vydejka.xsd" xmlns:pri="http://www.stormware.cz/schema/version_2/prijemka.xsd" xmlns:bal="http://www.stormware.cz/schema/version_2/balance.xsd" xmlns:pre="http://www.stormware.cz/schema/version_2/prevodka.xsd" xmlns:vyr="http://www.stormware.cz/schema/version_2/vyroba.xsd" xmlns:pro="http://www.stormware.cz/schema/version_2/prodejka.xsd" xmlns:con="http://www.stormware.cz/schema/version_2/contract.xsd" xmlns:adb="http://www.stormware.cz/schema/version_2/addressbook.xsd" xmlns:prm="http://www.stormware.cz/schema/version_2/parameter.xsd" xmlns:lCon="http://www.stormware.cz/schema/version_2/list_contract.xsd" xmlns:ctg="http://www.stormware.cz/schema/version_2/category.xsd" xmlns:ipm="http://www.stormware.cz/schema/version_2/intParam.xsd" xmlns:str="http://www.stormware.cz/schema/version_2/storage.xsd" xmlns:idp="http://www.stormware.cz/schema/version_2/individualPrice.xsd" xmlns:sup="http://www.stormware.cz/schema/version_2/supplier.xsd" xmlns:prn="http://www.stormware.cz/schema/version_2/print.xsd" xmlns:lck="http://www.stormware.cz/schema/version_2/lock.xsd" xmlns:isd="http://www.stormware.cz/schema/version_2/isdoc.xsd" xmlns:sEET="http://www.stormware.cz/schema/version_2/sendEET.xsd" xmlns:act="http://www.stormware.cz/schema/version_2/accountancy.xsd" xmlns:bnk="http://www.stormware.cz/schema/version_2/bank.xsd" xmlns:sto="http://www.stormware.cz/schema/version_2/store.xsd" xmlns:grs="http://www.stormware.cz/schema/version_2/groupStocks.xsd" xmlns:acp="http://www.stormware.cz/schema/version_2/actionPrice.xsd" xmlns:csh="http://www.stormware.cz/schema/version_2/cashRegister.xsd" xmlns:bka="http://www.stormware.cz/schema/version_2/bankAccount.xsd" xmlns:ilt="http://www.stormware.cz/schema/version_2/inventoryLists.xsd" xmlns:nms="http://www.stormware.cz/schema/version_2/numericalSeries.xsd" xmlns:pay="http://www.stormware.cz/schema/version_2/payment.xsd" xmlns:mKasa="http://www.stormware.cz/schema/version_2/mKasa.xsd" xmlns:gdp="http://www.stormware.cz/schema/version_2/GDPR.xsd" xmlns:est="http://www.stormware.cz/schema/version_2/establishment.xsd" xmlns:cen="http://www.stormware.cz/schema/version_2/centre.xsd" xmlns:acv="http://www.stormware.cz/schema/version_2/activity.xsd" xmlns:afp="http://www.stormware.cz/schema/version_2/accountingFormOfPayment.xsd" xmlns:vat="http://www.stormware.cz/schema/version_2/classificationVAT.xsd" xmlns:rgn="http://www.stormware.cz/schema/version_2/registrationNumber.xsd" xmlns:ftr="http://www.stormware.cz/schema/version_2/filter.xsd" xmlns:asv="http://www.stormware.cz/schema/version_2/accountingSalesVouchers.xsd" xmlns:arch="http://www.stormware.cz/schema/version_2/archive.xsd" xmlns:req="http://www.stormware.cz/schema/version_2/productRequirement.xsd" xmlns:mov="http://www.stormware.cz/schema/version_2/movement.xsd" xmlns:rec="http://www.stormware.cz/schema/version_2/recyclingContrib.xsd" xmlns:srv="http://www.stormware.cz/schema/version_2/service.xsd" xmlns:rul="http://www.stormware.cz/schema/version_2/rulesPairing.xsd" xmlns:lwl="http://www.stormware.cz/schema/version_2/liquidationWithoutLink.xsd" xmlns:dis="http://www.stormware.cz/schema/version_2/discount.xsd" xmlns:lqd="http://www.stormware.cz/schema/version_2/automaticLiquidation.xsd">
+                ' . $invoiceItems . '
+			</inv:invoiceDetail>
 		</inv:invoice>
 	</dat:dataPackItem>
 </dat:dataPack>';
