@@ -16,6 +16,8 @@ class Pohoda {
 	private string $url = 'http://666.davidstrejc.cz:666/xml'; // ALIS // http://95.168.223.178:4444/xml
 	private string $headerString = '<dat:dataPack version="2.0" id="Usr01" ico="27117758" key="033efc8c-513a-4639-92fc-be4e75668d07" programVersion="13607.12 (14.3.2024)" application="Transformace" note="CRM Import" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">';
 
+	// HeaderString is different for each project, to get it go to Pohoda program and export any record, then copy the header from the exported XML file
+
 	//AUTOCRM <dat:dataPack version="2.0" id="Usr01" ico="27117758" key="033efc8c-513a-4639-92fc-be4e75668d07" programVersion="13607.12 (14.3.2024)" application="Transformace" note="Uživatelský export" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">
 
 	//ALIS <dat:dataPack version="2.0" id="Usr01" ico="11223344" key="521d4e05-f032-465e-8150-f423d1b98197" programVersion="13700.208 (30.5.2024)" application="Transformace" note="Uživatelský export" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">
