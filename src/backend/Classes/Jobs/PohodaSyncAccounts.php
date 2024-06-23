@@ -33,7 +33,7 @@ class PohodaSyncAccounts implements JobDataLess
 	{
 		$company = htmlspecialchars($account->get('name'));
 		$city = htmlspecialchars($account->get('billingAddressCity') ? $account->get('billingAddressCity') : 'Neznáme');
-		$street = htmlspecialchars(substr($account->get('billingAddressStreet'), 0, 64));
+		$street = htmlspecialchars(mb_substr($account->get('billingAddressStreet'), 0, 64, 'UTF-8'));
 		$zip = htmlspecialchars($account->get('billingAddressPostalCode'));
 		$ico = htmlspecialchars($account->get('sicCode'));
 		$dic = htmlspecialchars($account->get('vatId'));

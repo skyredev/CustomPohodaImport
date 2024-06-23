@@ -113,7 +113,7 @@ class Pohoda {
 		$invoiceItems = '';
 
 		foreach ($items as $item) {
-			$itemName = htmlspecialchars(substr($item->get('name'), 0, 90));
+			$itemName = htmlspecialchars(mb_substr($item->get('name'), 0, 90, 'UTF-8'));
 			$unitPrice = htmlspecialchars($item->get('unitPrice'));
 			$unit = htmlspecialchars($item->get('unit'));
 			$quantity = htmlspecialchars($item->get('quantity'));
