@@ -1,0 +1,16 @@
+{
+	"Account": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\Account"
+	},
+	"Invoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\Invoice"
+	},
+	"ProformaInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\ProformaInvoice",
+		"duplicateCheckField": "number"
+	},
+	"SupplierInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\SupplierInvoice",
+		"duplicateCheckField": "number"
+	}
+}

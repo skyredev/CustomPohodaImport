@@ -6,10 +6,11 @@ use Espo\Modules\PohodaImport\Classes\XmlGeneration\Generator;
 use Espo\ORM\Entity;
 use Espo\Modules\PohodaImport\Tools\Pohoda\Pohoda;
 
-class IssuedInvoice implements Generator
+class Invoice implements Generator
 {
-    public function __construct(private Pohoda $pohoda)
-    {
+    public function __construct(
+        private readonly Pohoda $pohoda
+    ) {
     }
 
     public function generateXml(Entity $invoice): string

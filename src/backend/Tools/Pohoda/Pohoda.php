@@ -9,6 +9,7 @@ use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\ORM\Entity;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Metadata;
+use Espo\Entities\Integration;
 
 class Pohoda
 {
@@ -34,9 +35,7 @@ class Pohoda
 	private function loadPohodaSettings(): void
 	{
 		$pohodaImportSettings = $this->entityManager
-			->getRDBRepository('PohodaImportSettings')
-			->where(['id' => 'pohodaImportSettings'])
-			->findOne();
+			->getEntityById(Integration::ENTITY_TYPE, 'pohodaImportSettings');
 
 		if ($pohodaImportSettings) {
 			$this->username = $pohodaImportSettings->get('username') ?? '';
@@ -84,6 +83,7 @@ class Pohoda
 
 				if ($duplicateCheckField !== null) {
 					$duplicateCheckValue = htmlspecialchars($entity->get($duplicateCheckField));
+
 					if (in_array($duplicateCheckValue, $this->processedEntities)) {
 						$this->debug("Entity with {$duplicateCheckField}: {$duplicateCheckValue} already processed");
 						continue;
@@ -221,15 +221,6 @@ XML);
 		if ($responseState !== 'ok') {
 			throw new \Exception("Failed to send XML to Pohoda. Response state: {$responseState}, Response: {$response}");
 		}
-	}
-
-
-	private function getStatusCodeFromResponse(array $responseHeaders): int
-	{
-		$statusLine = $responseHeaders[0] ?? '';
-		preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches);
-
-		return (int) ($matches[1] ?? 0);
 	}
 
 	private function getResponseState(string $response): string
