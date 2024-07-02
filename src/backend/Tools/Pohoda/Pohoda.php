@@ -56,9 +56,10 @@ class Pohoda
 
 		foreach ($entityIds as $entityId) {
 			try {
-				$entity = $this->getEntityToSync($entityId?->id, $entityType);
+				$entity = $this->entityManager->getEntityById($entityType, $entityId->id);
 
 				if (!$entity) {
+					$this->debug("Entity type: {$entityType} with ID: {$entityId->id} not found");
 					continue;
 				}
 				if ($entity->get('processed')) {
@@ -103,19 +104,7 @@ class Pohoda
 			)
 			->find()->getValueMapList();
 	}
-	public function getEntityToSync(string $id, string $entityType): ?Entity
-	{
-		$entity = $this->entityManager
-			->getRDBRepository($entityType)
-			->where(Cond::equal(Cond::column('id'), $id))
-			->findOne();
 
-		if (!$entity) {
-			$this->debug("Entity type: {$entityType} with ID: {$id} not found");
-		}
-
-		return $entity;
-	}
 	public function getInvoiceItems(Entity $invoice, string $entityType, string $relationName): string
 	{
 		$items = $this->entityManager
