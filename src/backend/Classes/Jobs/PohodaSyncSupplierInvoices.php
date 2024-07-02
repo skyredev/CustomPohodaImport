@@ -3,7 +3,6 @@
 namespace Espo\Modules\PohodaImport\Classes\Jobs;
 
 use Espo\Core\ORM\Entity;
-use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\Job\JobDataLess;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
@@ -17,7 +16,8 @@ class PohodaSyncSupplierInvoices implements JobDataLess
 		private EntityManager $entityManager,
 		private Log $log,
 		private Pohoda $pohoda,
-	) {}
+	) {
+	}
 
 	private function debug($message, array $context = []): void
 	{
@@ -37,29 +37,28 @@ class PohodaSyncSupplierInvoices implements JobDataLess
 		$date = htmlspecialchars($invoice->get('dateInvoiced'));
 		$dueDate = htmlspecialchars($invoice->get('dateDue'));
 
-		if($dueDate){
+		if ($dueDate) {
 			$dueDate = '<inv:dateDue>' . $dueDate . '</inv:dateDue>';
-		}
-		else{
+		} else {
 			$dueDate = '';
 		}
 
 
 		$invoiceItems = $this->pohoda->getInvoiceItems($invoice, 'SupplierInvoiceItem', 'items');
 
-		if(!$name){
+		if (!$name) {
 			$name = 'Faktura bez názvu';
 		}
-		if(!$symvar){
+		if (!$symvar) {
 			$symvar = 0;
 		}
 
 		$this->debug('Invoice data: ' . json_encode([
-				'name' => $name,
-				'symconst' => $symconst,
-				'symvar' => $symvar,
-				'date' => $date,
-			]));
+			'name' => $name,
+			'symconst' => $symconst,
+			'symvar' => $symvar,
+			'date' => $date,
+		]));
 
 
 		$xmlData = '

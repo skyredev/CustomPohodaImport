@@ -3,7 +3,6 @@
 namespace Espo\Modules\PohodaImport\Classes\Jobs;
 
 use Espo\Core\ORM\Entity;
-use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\Job\JobDataLess;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
@@ -17,7 +16,8 @@ class PohodaSyncReceivedInvoices implements JobDataLess
 		private EntityManager $entityManager,
 		private Log $log,
 		private Pohoda $pohoda,
-	) {}
+	) {
+	}
 
 	private function debug($message, array $context = []): void
 	{
@@ -41,31 +41,31 @@ class PohodaSyncReceivedInvoices implements JobDataLess
 		$amount = htmlspecialchars($invoice->get('amount'));
 		$amountVAT = 0;
 
-		if(!$name){
+		if (!$name) {
 			$name = 'Faktura bez názvu';
 		}
-		if(!$amount){
+		if (!$amount) {
 			$amount = 0;
 			$amountVAT = htmlspecialchars($invoice->get('amountVAT'));
 		}
-		if(!$amountVAT){
+		if (!$amountVAT) {
 			$amountVAT = 0;
 		}
-		if(!$symvar){
+		if (!$symvar) {
 			$symvar = 0;
 		}
 
 		$this->debug('Invoice data: ' . json_encode([
-				'name' => $name,
-				'symconst' => $symconst,
-				'accountNo' => $accountNo,
-				'bankCode' => $bankCode,
-				'symvar' => $symvar,
-				'symspec' => $symspec,
-				'date' => $date,
-				'amount' => $amount,
-				'amountVAT' => $amountVAT,
-			]));
+			'name' => $name,
+			'symconst' => $symconst,
+			'accountNo' => $accountNo,
+			'bankCode' => $bankCode,
+			'symvar' => $symvar,
+			'symspec' => $symspec,
+			'date' => $date,
+			'amount' => $amount,
+			'amountVAT' => $amountVAT,
+		]));
 
 		$xmlData = '
 		<inv:invoice version="2.0" xmlns:inv="http://www.stormware.cz/schema/version_2/invoice.xsd">

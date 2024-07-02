@@ -3,7 +3,6 @@
 namespace Espo\Modules\PohodaImport\Classes\Jobs;
 
 use Espo\Core\ORM\Entity;
-use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\Job\JobDataLess;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
@@ -17,13 +16,7 @@ class PohodaSyncProformaInvoices implements JobDataLess
 		private EntityManager $entityManager,
 		private Log           $log,
 		private Pohoda        $pohoda,
-	)
-	{
-	}
-
-	private function debug($message, array $context = []): void
-	{
-		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
+	) {
 	}
 
 	public function run(): void
@@ -52,10 +45,9 @@ class PohodaSyncProformaInvoices implements JobDataLess
 
 		$invoiceItems = $this->pohoda->getInvoiceItems($invoice, 'ProformaInvoiceItem', 'items');
 
-		if($dueDate){
+		if ($dueDate) {
 			$dueDate = '<inv:dateDue>' . $dueDate . '</inv:dateDue>';
-		}
-		else{
+		} else {
 			$dueDate = '';
 		}
 
@@ -75,7 +67,6 @@ class PohodaSyncProformaInvoices implements JobDataLess
 			$email = htmlspecialchars($account->get('emailAddress'));
 
 			$phone = htmlspecialchars($account->get('phoneNumber'));
-
 		}
 
 		$xmlData = '

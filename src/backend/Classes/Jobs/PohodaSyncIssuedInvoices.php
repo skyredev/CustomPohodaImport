@@ -3,7 +3,6 @@
 namespace Espo\Modules\PohodaImport\Classes\Jobs;
 
 use Espo\Core\ORM\Entity;
-use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\Job\JobDataLess;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
@@ -17,11 +16,7 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 		private EntityManager $entityManager,
 		private Log $log,
 		private Pohoda $pohoda,
-	) {}
-
-	private function debug($message, array $context = []): void
-	{
-		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
+	) {
 	}
 
 	public function run(): void
@@ -30,14 +25,14 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 	}
 
 
-    public function generateXml(Entity $invoice): string
+	public function generateXml(Entity $invoice): string
 	{
 		$number = htmlspecialchars($invoice->get('number'));
 		$name = htmlspecialchars($invoice->get('name'));
 		$symconst = htmlspecialchars($invoice->get('constantSymbol'));
 		$symvar = htmlspecialchars($invoice->get('variableSymbol'));
 		$dateInvoiced = htmlspecialchars($invoice->get('dateInvoiced'));
-        $dueDate = htmlspecialchars($invoice->get('dueDate'));
+		$dueDate = htmlspecialchars($invoice->get('dueDate'));
 		$orderNumber = htmlspecialchars($invoice->get('orderNumber'));
 		$sicCode = htmlspecialchars($invoice->get('sicCode'));
 		$vatId = htmlspecialchars($invoice->get('vatId'));
@@ -49,32 +44,30 @@ class PohodaSyncIssuedInvoices implements JobDataLess
 		$shippingAddressPostalCode = htmlspecialchars($invoice->get('shippingAddressPostalCode'));
 		$company = htmlspecialchars($invoice->get('accountName'));
 
-        $invoiceItems = $this->pohoda->getInvoiceItems($invoice, 'InvoiceItem', 'items');
+		$invoiceItems = $this->pohoda->getInvoiceItems($invoice, 'InvoiceItem', 'items');
 
-        if($dueDate){
-            $dueDate = '<inv:dateDue>' . $dueDate . '</inv:dateDue>';
-        }
-        else{
-            $dueDate = '';
-        }
+		if ($dueDate) {
+			$dueDate = '<inv:dateDue>' . $dueDate . '</inv:dateDue>';
+		} else {
+			$dueDate = '';
+		}
 
-        $account = $this->entityManager
-            ->getRDBRepository('Invoice')
-            ->getRelation($invoice, 'account')
-            ->findOne();
+		$account = $this->entityManager
+			->getRDBRepository('Invoice')
+			->getRelation($invoice, 'account')
+			->findOne();
 
-		if(isset($account)){
+		if (isset($account)) {
 
-			if(!$sicCode){
+			if (!$sicCode) {
 				$sicCode = htmlspecialchars($account->get('sicCode'));
 			}
-			if(!$vatId){
+			if (!$vatId) {
 				$vatId = htmlspecialchars($account->get('vatId'));
 			}
 			$email = htmlspecialchars($account->get('emailAddress'));
 
 			$phone = htmlspecialchars($account->get('phoneNumber'));
-
 		}
 
 		$xmlData = '

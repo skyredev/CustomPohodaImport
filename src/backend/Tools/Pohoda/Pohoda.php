@@ -105,6 +105,14 @@ class Pohoda
 			->find()->getValueMapList();
 	}
 
+	public function getEntityToSync(string $id, string $entityType): ?Entity
+	{
+		$entity = $this->entityManager
+			->getEntityById($entityType, $id);
+
+		return $entity;
+	}
+
 	public function getInvoiceItems(Entity $invoice, string $entityType, string $relationName): string
 	{
 		$items = $this->entityManager

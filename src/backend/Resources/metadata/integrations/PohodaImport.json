@@ -1,16 +1,14 @@
 {
-    "fields": {
-        "username": {
-            "type": "varchar",
-            "required": true
-        },
-        "password": {
-            "type": "password",
-            "required": true
-        },
-        "url": {
-            "type": "url",
-            "required": true
-        }
-    }
+	"fields": {
+		"username": {
+			"type": "varchar"
+		},
+		"password": {
+			"type": "password"
+		},
+		"url": {
+			"type": "url"
+		}
+	},
+	"view": "pohoda-import:views/admin/integrations/pohoda-import"
 }
