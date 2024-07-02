@@ -2,11 +2,13 @@
 
 namespace Espo\Modules\PohodaImport\Tools\Pohoda;
 
+use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\ORM\Entity;
 use Espo\Core\Utils\Config;
+use Espo\Core\Utils\Metadata;
 
 class Pohoda
 {
@@ -20,9 +22,11 @@ class Pohoda
 	private array $processedEntities = [];
 
 	public function __construct(
-		private EntityManager $entityManager,
-		private Log $log,
-		private Config $config
+		private readonly EntityManager $entityManager,
+		private readonly Log $log,
+		private readonly Config $config,
+		private readonly Metadata $metadata,
+		private readonly InjectableFactory $injectableFactory
 	) {
 		$this->loadPohodaSettings();
 	}
@@ -48,7 +52,7 @@ class Pohoda
 		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
 	}
 
-	public function processEntity(string $entityType, $generateXmlForEntity, $duplicityCheckFieldType = null): void
+	public function processEntity(string $entityType): void
 	{
 		$entityIds = $this->getIdsToSync($entityType);
 
