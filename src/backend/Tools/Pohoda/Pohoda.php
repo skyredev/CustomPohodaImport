@@ -4,13 +4,11 @@ namespace Espo\Modules\PohodaImport\Tools\Pohoda;
 
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
-use Espo\Core\Exceptions\Error;
-use Espo\Core\Exceptions\NotFound;
-use Espo\Entities\Integration as IntegrationEntity;
 use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\ORM\Entity;
 
-class Pohoda {
+class Pohoda
+{
 	private string $username = 'Admin';  //ALIS //APERTIA
 	private string $password = 'apertia'; // ALIS // 12345
 	private string $url = 'http://666.davidstrejc.cz:666/xml'; // ALIS // http://95.168.223.178:4444/xml
@@ -29,7 +27,8 @@ class Pohoda {
 	public function __construct(
 		private EntityManager $entityManager,
 		private Log $log,
-	) {}
+	) {
+	}
 	private function debug($message, array $context = []): void
 	{
 		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
@@ -39,7 +38,7 @@ class Pohoda {
 	{
 		$entityIds = $this->getIdsToSync($entityType);
 
-		$this->debug(' '.$entityType.' to sync count: ' . count($entityIds));
+		$this->debug(' ' . $entityType . ' to sync count: ' . count($entityIds));
 
 		foreach ($entityIds as $entityId) {
 			try {
@@ -49,7 +48,7 @@ class Pohoda {
 					continue;
 				}
 				if ($entity->get('processed')) {
-					$this->debug($entityType.' already processed');
+					$this->debug($entityType . ' already processed');
 					continue;
 				}
 
@@ -61,21 +60,20 @@ class Pohoda {
 					}
 				}
 
-				$this->debug('Trying to sync '.$entityType.' with name: ' . $entity->get('name'));
+				$this->debug('Trying to sync ' . $entityType . ' with name: ' . $entity->get('name'));
 
 				$xmlData = $generateXmlForEntity($entity);
 
 				$this->sendXmlToPohoda($xmlData);
 
-				if($duplicityCheckFieldType !== null) {
+				if ($duplicityCheckFieldType !== null) {
 					$this->processedEntities[] = $duplicityCheckField;
 				}
 
 				$entity->set('processed', true);
 				$this->entityManager->saveEntity($entity);
-
 			} catch (\Exception $exception) {
-				$this->debug('Failed to sync '.$entityType.' with ID: ' . $entityId->id . '. Error: ' . $exception->getMessage());
+				$this->debug('Failed to sync ' . $entityType . ' with ID: ' . $entityId->id . '. Error: ' . $exception->getMessage());
 			}
 		}
 	}
@@ -87,7 +85,8 @@ class Pohoda {
 			->getRDBRepository($entityType)
 			->select(['id'])
 			->where(
-				Cond::Equal(Cond::column('processed'), false))
+				Cond::Equal(Cond::column('processed'), false)
+			)
 			->find()->getValueMapList();
 	}
 	public function getEntityToSync(string $id, string $entityType): ?Entity
@@ -124,13 +123,11 @@ class Pohoda {
 
 			$withTax = $withTax ? 'true' : 'false';
 
-			if($taxRate == 21) {
+			if ($taxRate == 21) {
 				$rateVAT = 'high';
-			}
-			elseif($taxRate == 12){
+			} elseif ($taxRate == 12) {
 				$rateVAT = 'low';
-			}
-			else{
+			} else {
 				$rateVAT = 'none';
 			}
 
@@ -139,7 +136,7 @@ class Pohoda {
             <inv:invoiceItem>
 					<inv:text>' . $itemName . '</inv:text>
 					<inv:quantity>' . $quantity . '</inv:quantity>
-					<inv:payVAT>' . $withTax .'</inv:payVAT>
+					<inv:payVAT>' . $withTax . '</inv:payVAT>
 					<inv:rateVAT>' . $rateVAT . '</inv:rateVAT>
 					<inv:unit>' . $unit . '</inv:unit>
 					<inv:discountPercentage>' . $discount . '</inv:discountPercentage>
@@ -147,9 +144,7 @@ class Pohoda {
 						<typ:unitPrice>' . $unitPrice . '</typ:unitPrice>
 					</inv:homeCurrency>
 					<inv:note>' . $unitPriceCurrency . '</inv:note>
-				</inv:invoiceItem>'
-			;
-
+				</inv:invoiceItem>';
 		}
 
 		return $invoiceItems;
@@ -240,6 +235,4 @@ class Pohoda {
 			return '';
 		}
 	}
-
-
 }
