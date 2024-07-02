@@ -171,31 +171,24 @@ XML;
     </dat:dataPack>
 XML);
 
-		$options = [
-			'http' => [
-				'method' => 'POST',
-				'header' => implode("\r\n", $headers),
-				'content' => iconv('UTF-8', 'Windows-1250', $xmlTemplate),
-			],
-		];
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, iconv('UTF-8', 'Windows-1250', $xmlTemplate));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_ENCODING, '');
 
-		$context = stream_context_create($options);
-		$response = file_get_contents($this->url, false, $context);
+		$response = curl_exec($ch);
 
 		if ($response === false) {
-			throw new \Exception("Failed to send XML to Pohoda. Error: " . error_get_last()['message']);
+			$error = curl_error($ch);
+			curl_close($ch);
+			throw new \Exception("Failed to send XML to Pohoda. cURL Error: " . $error);
 		}
 
-		$responseHeaders = $http_response_header;
-		foreach ($responseHeaders as $header) {
-			if (stripos($header, 'Content-Encoding: gzip') !== false) {
-				$response = gzdecode($response);
-			} elseif (stripos($header, 'Content-Encoding: deflate') !== false) {
-				$response = gzinflate($response);
-			}
-		}
-
-		$statusCode = $this->getStatusCodeFromResponse($responseHeaders);
+		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
 
 		if ($statusCode !== 200) {
 			throw new \Exception("Failed to send XML to Pohoda. Status code: {$statusCode}, Response: {$response}");
