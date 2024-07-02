@@ -6,19 +6,14 @@ use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\ORM\Entity;
+use Espo\Core\Utils\Config;
 
 class Pohoda
 {
-	private string $username = 'Admin';  //ALIS //APERTIA
-	private string $password = 'apertia'; // ALIS // 12345
-	private string $url = 'http://666.davidstrejc.cz:666/xml'; // ALIS // http://95.168.223.178:4444/xml
+	private string $username;
+	private string $password;
+	private string $url;
 	private string $headerString = '<dat:dataPack version="2.0" id="Usr01" ico="27117758" key="033efc8c-513a-4639-92fc-be4e75668d07" programVersion="13607.12 (14.3.2024)" application="Transformace" note="CRM Import" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">';
-
-	// HeaderString is different for each project, to get it go to Pohoda program and export any record, then copy the header from the exported XML file
-
-	//AUTOCRM <dat:dataPack version="2.0" id="Usr01" ico="27117758" key="033efc8c-513a-4639-92fc-be4e75668d07" programVersion="13607.12 (14.3.2024)" application="Transformace" note="Uživatelský export" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">
-
-	//ALIS <dat:dataPack version="2.0" id="Usr01" ico="11223344" key="521d4e05-f032-465e-8150-f423d1b98197" programVersion="13700.208 (30.5.2024)" application="Transformace" note="Uživatelský export" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">
 
 	const DEBUG_PREFIX = '[Espo\Modules\PohodaImport\Tools\Pohoda]';
 
@@ -27,8 +22,13 @@ class Pohoda
 	public function __construct(
 		private EntityManager $entityManager,
 		private Log $log,
+		private Config $config
 	) {
+		$this->username = $this->config->get('pohodaUsername') ?? '';
+		$this->password = $this->config->get('pohodaPassword') ?? '';
+		$this->url = $this->config->get('pohodaUrl') ?? '';
 	}
+
 	private function debug($message, array $context = []): void
 	{
 		$this->log->debug(self::DEBUG_PREFIX . $message, $context);

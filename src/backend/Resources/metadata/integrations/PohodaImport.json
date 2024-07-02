@@ -1,0 +1,16 @@
+{
+    "fields": {
+        "username": {
+            "type": "varchar",
+            "required": true
+        },
+        "password": {
+            "type": "password",
+            "required": true
+        },
+        "url": {
+            "type": "url",
+            "required": true
+        }
+    }
+}
