@@ -1,3 +1,6 @@
 {
-    "Account": 
+    "Account": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\Account",
+    "Invoice": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\IssuedInvoice",
+    "ProformaInvoice": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\ProformaInvoice",
+    "SupplierInvoice": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\SupplierInvoice"
 }
