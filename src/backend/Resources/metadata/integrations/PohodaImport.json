@@ -8,6 +8,10 @@
 		},
 		"url": {
 			"type": "url"
+		},
+		"entityTypeList": {
+			"type": "multiEnum",
+			"view": "views/fields/entity-type-list"
 		}
 	},
 	"view": "pohoda-import:views/admin/integrations/pohoda-import"

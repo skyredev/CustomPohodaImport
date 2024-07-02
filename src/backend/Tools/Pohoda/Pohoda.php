@@ -35,7 +35,7 @@ class Pohoda
 	private function loadPohodaSettings(): void
 	{
 		$pohodaImportSettings = $this->entityManager
-			->getEntityById(Integration::ENTITY_TYPE, 'pohodaImportSettings');
+			->getEntityById(Integration::ENTITY_TYPE, 'PohodaImport');
 
 		if ($pohodaImportSettings) {
 			$this->username = $pohodaImportSettings->get('username') ?? '';
