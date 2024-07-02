@@ -3,7 +3,6 @@
 namespace Espo\Modules\PohodaImport\Classes\Jobs;
 
 use Espo\Core\ORM\Entity;
-use Espo\ORM\Query\Part\Condition as Cond;
 use Espo\Core\Job\JobDataLess;
 use Espo\Core\Utils\Log;
 use Espo\ORM\EntityManager;
@@ -17,11 +16,7 @@ class PohodaSyncAccounts implements JobDataLess
 		private EntityManager $entityManager,
 		private Log $log,
 		private Pohoda $pohoda,
-	) {}
-
-	private function debug($message, array $context = []): void
-	{
-		$this->log->debug(self::DEBUG_PREFIX . $message, $context);
+	) {
 	}
 
 	public function run(): void
@@ -41,7 +36,7 @@ class PohodaSyncAccounts implements JobDataLess
 		$email = htmlspecialchars($account->get('emailAddress'));
 		$web = htmlspecialchars($account->get('website'));
 
-		if(!$company){
+		if (!$company) {
 			throw new \Exception('Company name is empty');
 		}
 
