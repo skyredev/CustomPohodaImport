@@ -56,7 +56,7 @@ class Pohoda
 
 		foreach ($entityIds as $entityId) {
 			try {
-				$entity = $this->entityManager->getEntityById($entityType, $entityId->id);
+				$entity = $this->getEntityToSync($entityId?->id, $entityType);
 
 				if (!$entity) {
 					$this->debug("Entity type: {$entityType} with ID: {$entityId->id} not found");
