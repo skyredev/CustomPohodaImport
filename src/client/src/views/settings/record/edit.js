@@ -1,5 +1,5 @@
-define(['views/settings/record/edit'], function (Dep) {
-    class PohodaImportSettingsEdit extends Dep {
+define(['views/settings/record/edit'], Dep => {
+    return class extends Dep {
         setup() {
             super.setup();
 
@@ -21,7 +21,5 @@ define(['views/settings/record/edit'], function (Dep) {
         // }
 
         // Add any other custom methods specific to Pohoda Import settings
-    }
-
-    return PohodaImportSettingsEdit;
+    };
 });
