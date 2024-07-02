@@ -24,9 +24,23 @@ class Pohoda
 		private Log $log,
 		private Config $config
 	) {
-		$this->username = $this->config->get('pohodaUsername') ?? '';
-		$this->password = $this->config->get('pohodaPassword') ?? '';
-		$this->url = $this->config->get('pohodaUrl') ?? '';
+		$this->loadPohodaSettings();
+	}
+
+	private function loadPohodaSettings(): void
+	{
+		$pohodaImportSettings = $this->entityManager
+			->getRDBRepository('PohodaImportSettings')
+			->where(['id' => 'pohodaImportSettings'])
+			->findOne();
+
+		if ($pohodaImportSettings) {
+			$this->username = $pohodaImportSettings->get('username') ?? '';
+			$this->password = $pohodaImportSettings->get('password') ?? '';
+			$this->url = $pohodaImportSettings->get('url') ?? '';
+		} else {
+			$this->debug('PohodaImportSettings not found');
+		}
 	}
 
 	private function debug($message, array $context = []): void
