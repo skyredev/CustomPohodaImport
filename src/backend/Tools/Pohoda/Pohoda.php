@@ -54,13 +54,24 @@ class Pohoda
 
 	public function processEntity(string $entityType): void
 	{
+		$xmlGenerationMetadata = $this->metadata->get(['app', 'xmlGeneration', $entityType]) ?? [];
+		$generatorClassName = $xmlGenerationMetadata['className'] ?? null;
+		$duplicateCheckField = $xmlGenerationMetadata['duplicateCheckField'] ?? null;
+
+		if (!$generatorClassName) {
+			$this->debug("XML generator class not found for entity type: {$entityType}");
+			return;
+		}
+
+		$generator = $this->injectableFactory->create($generatorClassName);
+
 		$entityIds = $this->getIdsToSync($entityType);
 
 		$this->debug(' ' . $entityType . ' to sync count: ' . count($entityIds));
 
 		foreach ($entityIds as $entityId) {
 			try {
-				$entity = $this->getEntityToSync($entityId?->id, $entityType);
+				$entity = $this->getEntityToSync($entityId->id, $entityType);
 
 				if (!$entity) {
 					$this->debug("Entity type: {$entityType} with ID: {$entityId->id} not found");
@@ -71,22 +82,22 @@ class Pohoda
 					continue;
 				}
 
-				if ($duplicityCheckFieldType !== null) {
-					$duplicityCheckField = htmlspecialchars($entity->get($duplicityCheckFieldType));
-					if (in_array($duplicityCheckField, $this->processedEntities)) {
-						$this->debug("Entity with number: {$duplicityCheckField} already processed");
+				if ($duplicateCheckField !== null) {
+					$duplicateCheckValue = htmlspecialchars($entity->get($duplicateCheckField));
+					if (in_array($duplicateCheckValue, $this->processedEntities)) {
+						$this->debug("Entity with {$duplicateCheckField}: {$duplicateCheckValue} already processed");
 						continue;
 					}
 				}
 
 				$this->debug('Trying to sync ' . $entityType . ' with name: ' . $entity->get('name'));
 
-				$xmlData = $generateXmlForEntity($entity);
+				$xmlData = $generator->generateXml($entity);
 
 				$this->sendXmlToPohoda($xmlData);
 
-				if ($duplicityCheckFieldType !== null) {
-					$this->processedEntities[] = $duplicityCheckField;
+				if ($duplicateCheckField !== null) {
+					$this->processedEntities[] = $duplicateCheckValue;
 				}
 
 				$entity->set('processed', true);
@@ -96,7 +107,6 @@ class Pohoda
 			}
 		}
 	}
-
 
 	public function getIdsToSync(string $entityType): array
 	{
