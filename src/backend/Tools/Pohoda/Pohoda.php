@@ -134,20 +134,20 @@ class Pohoda
 				$rateVAT = 'none';
 			}
 
-
-			$invoiceItems .= '
+			$invoiceItems .= <<<XML
             <inv:invoiceItem>
-					<inv:text>' . $itemName . '</inv:text>
-					<inv:quantity>' . $quantity . '</inv:quantity>
-					<inv:payVAT>' . $withTax . '</inv:payVAT>
-					<inv:rateVAT>' . $rateVAT . '</inv:rateVAT>
-					<inv:unit>' . $unit . '</inv:unit>
-					<inv:discountPercentage>' . $discount . '</inv:discountPercentage>
+					<inv:text>{$itemName}</inv:text>
+					<inv:quantity>{$quantity}</inv:quantity>
+					<inv:payVAT>{$withTax}</inv:payVAT>
+					<inv:rateVAT>{$rateVAT}</inv:rateVAT>
+					<inv:unit>{$unit}</inv:unit>
+					<inv:discountPercentage>{$discount}</inv:discountPercentage>
 					<inv:homeCurrency>
-						<typ:unitPrice>' . $unitPrice . '</typ:unitPrice>
+						<typ:unitPrice>{$unitPrice}</typ:unitPrice>
 					</inv:homeCurrency>
-					<inv:note>' . $unitPriceCurrency . '</inv:note>
-				</inv:invoiceItem>';
+					<inv:note>{$unitPriceCurrency}</inv:note>
+				</inv:invoiceItem>
+XML;
 		}
 
 		return $invoiceItems;
@@ -162,13 +162,14 @@ class Pohoda
 			'Accept-Encoding: gzip, deflate',
 		];
 
-		$xmlTemplate = trim('
+		$xmlTemplate = trim(<<<XML
     <?xml version="1.0" encoding="Windows-1250"?>
-    ' . $this->headerString . '
+    {$this->headerString}
         <dat:dataPackItem version="2.0" id="Usr01 (001)">
-            ' . trim($xmlData) . '
+            {$xmlData}
         </dat:dataPackItem>
-    </dat:dataPack>');
+    </dat:dataPack>
+XML);
 
 		$options = [
 			'http' => [
