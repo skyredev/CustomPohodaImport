@@ -40,6 +40,6 @@ class ReceivedInvoice implements Generator
         </inv:homeCurrency>
     </inv:invoiceSummary>
 </inv:invoice>
-        XML;
+XML;
     }
 }

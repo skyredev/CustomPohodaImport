@@ -7,7 +7,7 @@ use Espo\Core\ORM\EntityManager;
 use Espo\Entities\Integration;
 use Espo\Modules\PohodaImport\Tools\Pohoda\Pohoda as PohodaTool;
 
-class PohodySync implements JobDataLess
+class PohodaSync implements JobDataLess
 {
     public function __construct(
         private readonly PohodaTool $pohodaTool,

@@ -52,7 +52,6 @@ class Invoice implements Generator
         }
 
         return <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
 <inv:invoice version="2.0" xmlns:inv="http://www.stormware.cz/schema/version_2/invoice.xsd">
     <inv:invoiceHeader>
         <inv:invoiceType>issuedInvoice</inv:invoiceType>
