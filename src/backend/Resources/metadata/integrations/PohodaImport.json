@@ -10,7 +10,7 @@
 		},
 		"url": {
 			"type": "url",
-			"tooltip": "Pohoda mServer URL (e.g. your_url:your_port/xml )"
+			"tooltip": "Pohoda mServer URL in format your_url:your_port/xml"
 		},
 		"headerString": {
 			"type": "text",
