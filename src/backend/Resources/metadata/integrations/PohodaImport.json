@@ -2,11 +2,11 @@
 	"fields": {
 		"username": {
 			"type": "varchar",
-			"tooltip": "Pohoda username"
+			"tooltip": "Username for signing in to Pohoda"
 		},
 		"password": {
 			"type": "password",
-			"tooltip": "Pohoda password"
+			"tooltip": "Password for signing in to Pohoda"
 		},
 		"url": {
 			"type": "url",
@@ -18,7 +18,8 @@
 		},
 		"entityTypeList": {
 			"type": "multiEnum",
-			"view": "views/fields/entity-type-list"
+			"view": "views/fields/entity-type-list",
+			"tooltip": "Select the entity types you want to import"
 		}
 	},
 	"view": "pohoda-import:views/admin/integrations/pohoda-import"

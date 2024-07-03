@@ -1,0 +1,21 @@
+{
+	"fields": {
+		"password": "Heslo",
+		"url": "Pohoda mServer URL",
+		"headerString": "Header string",
+		"entityTypeList": "Typy entit"
+	},
+	"help": {
+		"PohodaImport": "Pohoda header můžete získat exportem jakéhokoliv dokumentu z Pohody do XML formátu a zkopírováním hlavičky (druhý řádek) z XML souboru"
+	},
+	"titles": {
+		"PohodaImport": "Pohoda Import"
+	},
+	"tooltips": {
+		"username": "Uživatelské jméno pro přihlášení do Pohody",
+		"password": "Heslo pro přihlášení do Pohody",
+		"url": "Pohoda mServer odkaz ve formátu your_url:your_port/xml",
+        "headerString": "Pohoda header string můžete získat exportem jakéhokoliv dokumentu z Pohody do XML formátu a zkopírováním hlavičky (druhý řádek) z XML souboru",
+		"entityTypeList": "Vyberte typy entit, které chcete importovat"
+	}
+}

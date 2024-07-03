@@ -1,0 +1,14 @@
+{
+	"fields": {
+		"password": "Password",
+		"url": "Pohoda mServer URL",
+		"headerString": "Header string",
+		"entityTypeList": "Entity types"
+	},
+	"help": {
+		"PohodaImport": "Pohoda header string can be found by exporting any document from your Pohoda in XML format and copying the header ( second line ) string from the XML file"
+	},
+	"titles": {
+		"PohodaImport": "Pohoda Import"
+	}
+}
