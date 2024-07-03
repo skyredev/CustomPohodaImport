@@ -16,7 +16,7 @@ class Pohoda
 	private string $username;
 	private string $password;
 	private string $url;
-	private string $headerString = '<dat:dataPack version="2.0" id="Usr01" ico="27117758" key="033efc8c-513a-4639-92fc-be4e75668d07" programVersion="13607.12 (14.3.2024)" application="Transformace" note="CRM Import" xmlns:dat="http://www.stormware.cz/schema/version_2/data.xsd">';
+	private string $headerString;
 
 	const DEBUG_PREFIX = '[Espo\Modules\PohodaImport\Tools\Pohoda]';
 
@@ -41,6 +41,7 @@ class Pohoda
 			$this->username = $pohodaImportSettings->get('username') ?? '';
 			$this->password = $pohodaImportSettings->get('password') ?? '';
 			$this->url = $pohodaImportSettings->get('url') ?? '';
+			$this->headerString = $pohodaImportSettings->get('headerString') ?? '';
 		} else {
 			$this->debug('PohodaImportSettings not found');
 		}

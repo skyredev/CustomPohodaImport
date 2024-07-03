@@ -15,6 +15,9 @@
 		"entityTypeList": {
 			"type": "multiEnum",
 			"view": "views/fields/entity-type-list"
+		},
+		"headerString": {
+			"type": "text"
 		}
 	},
 	"view": "pohoda-import:views/admin/integrations/pohoda-import"
