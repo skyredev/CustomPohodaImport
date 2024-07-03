@@ -1,0 +1,24 @@
+{
+	"Account": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\Account"
+	},
+	"Invoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\Invoice"
+	},
+	"ProformaInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\ProformaInvoice",
+		"duplicateCheckField": "number"
+	},
+	"ReceivedInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\ReceivedInvoice",
+		"duplicateCheckField": "number"
+	},
+	"ReceivedProformaInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\ReceivedProformaInvoice",
+		"duplicateCheckField": "number"
+	},
+	"SupplierInvoice": {
+		"className": "Espo\\Modules\\PohodaImport\\Classes\\Generators\\SupplierInvoice",
+		"duplicateCheckField": "number"
+	}
+}

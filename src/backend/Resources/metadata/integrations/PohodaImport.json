@@ -1,0 +1,25 @@
+{
+	"fields": {
+		"username": {
+			"type": "varchar",
+			"tooltip": "Pohoda username"
+		},
+		"password": {
+			"type": "password",
+			"tooltip": "Pohoda password"
+		},
+		"url": {
+			"type": "url",
+			"tooltip": "Pohoda mServer URL in format your_url:your_port/xml"
+		},
+		"headerString": {
+			"type": "text",
+			"tooltip": "Pohoda header string can be found by exporting any document from your Pohoda in XML format and copying the header ( second line ) string from the XML file"
+		},
+		"entityTypeList": {
+			"type": "multiEnum",
+			"view": "views/fields/entity-type-list"
+		}
+	},
+	"view": "pohoda-import:views/admin/integrations/pohoda-import"
+}

@@ -118,3 +118,4 @@ node_modules
 
 # Ignore apertia-tool cache etc...
 apertia-tool
+.aider*

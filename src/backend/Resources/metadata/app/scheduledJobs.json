@@ -1,20 +1,5 @@
 {
-	"PohodaSyncAccounts": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncAccounts"
-	},
-	"PohodaSyncIssuedInvoices": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncIssuedInvoices"
-	},
-	"PohodaSyncSupplierInvoices": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncSupplierInvoices"
-	},
-	"PohodaSyncReceivedInvoices": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncReceivedInvoices"
-	},
-	"PohodaSyncProformaInvoices": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncProformaInvoices"
-	},
-	"PohodaSyncReceivedProformaInvoices": {
-		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSyncReceivedProformaInvoices"
+	"PohodaSync": {
+		"jobClassName": "Espo\\Modules\\PohodaImport\\Classes\\Jobs\\PohodaSync"
 	}
 }
