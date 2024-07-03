@@ -7,21 +7,21 @@ use Espo\ORM\Entity;
 
 class Account implements Generator
 {
-    public function generateXml(Entity $account): string
-    {
-        $company = htmlspecialchars($account->get('name'));
-        $city = htmlspecialchars($account->get('billingAddressCity') ? $account->get('billingAddressCity') : 'Neznáme');
-        $street = htmlspecialchars(mb_substr($account->get('billingAddressStreet'), 0, 64, 'UTF-8'));
-        $zip = htmlspecialchars($account->get('billingAddressPostalCode'));
-        $ico = htmlspecialchars($account->get('sicCode'));
-        $dic = htmlspecialchars($account->get('vatId'));
-        $phone = htmlspecialchars($account->get('phoneNumber'));
-        $email = htmlspecialchars($account->get('emailAddress'));
-        $web = htmlspecialchars($account->get('website'));
+	public function generateXml(Entity $account): string
+	{
+		$company = htmlspecialchars($account->get('name'));
+		$city = htmlspecialchars($account->get('billingAddressCity') ? $account->get('billingAddressCity') : 'Neznáme');
+		$street = htmlspecialchars(mb_substr($account->get('billingAddressStreet'), 0, 64, 'UTF-8'));
+		$zip = htmlspecialchars($account->get('billingAddressPostalCode'));
+		$ico = htmlspecialchars($account->get('sicCode'));
+		$dic = htmlspecialchars($account->get('vatId'));
+		$phone = htmlspecialchars($account->get('phoneNumber'));
+		$email = htmlspecialchars($account->get('emailAddress'));
+		$web = htmlspecialchars($account->get('website'));
 
-        if (!$company) {
-            throw new \Exception('Company name is empty');
-        }
+		if(!$company){
+			throw new \Exception('Company name is empty');
+		}
 
         return <<<XML
 <adb:addressbook version="2.0" xmlns:adb="http://www.stormware.cz/schema/version_2/addressbook.xsd">
