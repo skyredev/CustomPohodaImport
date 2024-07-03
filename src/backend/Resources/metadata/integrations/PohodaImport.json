@@ -9,6 +9,9 @@
 		"url": {
 			"type": "url"
 		},
+		"headerString": {
+			"type": "varchar"
+		},
 		"entityTypeList": {
 			"type": "multiEnum",
 			"view": "views/fields/entity-type-list"
